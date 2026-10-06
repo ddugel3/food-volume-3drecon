@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>단안 음식 부피 추정 | 프로젝트 기록</title>
+<style>
+:root{color-scheme:light;--text:#202b29;--muted:#596761;--line:#dce2de;--green:#117360;--red:#a43a43}
+*{box-sizing:border-box;letter-spacing:0}
+body{margin:0;background:#fff;color:var(--text);font:16px/1.7 system-ui,sans-serif}
+header,main,footer{max-width:1200px;margin:auto;padding:24px}
+header{border-bottom:1px solid var(--line)}
+nav{display:flex;gap:24px;flex-wrap:wrap;margin-top:16px}
+a{color:var(--green);text-underline-offset:4px}
+h1{font-size:32px;line-height:1.3;margin:12px 0}
+h2{font-size:24px;margin:0 0 12px}
+h3{font-size:18px;margin:0 0 8px}
+p{margin:8px 0 16px;max-width:85ch}
+.meta,figcaption{font-size:14px;color:var(--muted)}
+figure{margin:0 0 28px}
+figure img{display:block;width:100%;height:auto;border:1px solid var(--line)}
+figcaption{padding:12px 0}
+section{padding:28px 0;border-top:1px solid var(--line);scroll-margin-top:20px}
+.paths{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.paths article{min-width:0;border-top:3px solid var(--green);padding-top:14px}
+.paths article:nth-child(2){border-color:#75629d}.paths article:nth-child(3){border-color:#b18424}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{border-bottom:1px solid var(--line);padding:12px 8px;text-align:right;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+.warning{border-left:3px solid var(--red);padding-left:18px}
+code{font-size:14px;overflow-wrap:anywhere}
+footer{border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+@media(max-width:640px){header,main,footer{padding:18px}h1{font-size:26px}.paths{grid-template-columns:1fr}th,td{font-size:12px;padding:10px 4px}nav{gap:16px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="meta">MetaFood 2025 · 대회 종료 후 탐색 프로젝트</div>
+  <h1>단안 음식 부피 추정</h1>
+  <p>한 장의 RGB 이미지에서 음식의 형상과 실제 스케일을 분리해 추정합니다. 깊이·메시·시각언어 모델의 서로 다른 증거를 결합해 음식별 부피를 mL 단위로 출력합니다.</p>
+  <nav aria-label="목차"><a href="#method">방법</a><a href="#results">성능</a><a href="#limits">평가 한계</a><a href="#code">코드</a></nav>
+</header>
+<main>
+  <figure>
+    <a href="assets/method-architecture.png"><img src="assets/method-architecture.png" alt="접시 스케일을 공유하는 높이장 A와 메시 B를 기하 융합하고, VLM C와 로그공간에서 결합하는 아키텍처"></a>
+    <figcaption>생성된 설명용 개념도입니다. 음식 사진·깊이·메시는 실제 벤치마크 관측이나 실험 출력이 아닙니다. 용기 음식은 아래의 별도 분기를 사용합니다.</figcaption>
+  </figure>
+  <section id="method">
+    <h2>스케일은 공유하고, 형상 증거는 나눕니다</h2>
+    <p>음식과 접시를 분리한 뒤 EXIF 내부 파라미터와 접시 크기 사전정보로 기하 경로의 스케일을 맞춥니다. 접시 크기는 실측 GT가 아니라 추정·가정한 값입니다.</p>
+    <div class="paths">
+      <article><h3>A · 높이장 기하</h3><p>Depth Pro → 역투영 → 지지평면 피팅 → 높이 적분. 형상별 충전율과 용기 테두리 측정으로 단순 바닥 가정을 보정합니다.</p></article>
+      <article><h3>B · 메시 기하</h3><p>음식 크롭 → Hunyuan3D 2.1 → 깊이 관측 정합 → 실제 스케일 부여 → 메시 부피. A와 깊이·마스크·스케일을 공유하므로 독립적인 증거가 아닙니다.</p></article>
+      <article><h3>C · 시각언어 추정</h3><p>Qwen-VL이 이미지와 음식 정보에서 크기·형상·부피를 추론합니다. 접시 기반 기하 스케일을 직접 입력받는 경로는 아닙니다.</p></article>
+    </div>
+    <p>A·B를 기하평균으로 합친 뒤 C와 로그공간 역분산 가중 융합을 수행합니다. VLM 가중치 배율은 <strong>0.25</strong>이며 고정된 25% 혼합 비율이 아닙니다. 수축 보정은 꺼져 있습니다.</p>
+    <p><strong>용기 분기:</strong> 유효한 용기 내부 부피 추정이 있으면 해당 값을 바로 사용하며 A·B·C 융합을 건너뜁니다.</p>
+  </section>
+  <section id="results">
+    <h2>저장된 예측의 로컬 재평가</h2>
+    <p>2026-10-06 재채점. MAPE는 낮을수록 좋습니다. 공식 Kaggle 순위나 새로 조회한 제출 점수가 아닙니다.</p>
+    <table><thead><tr><th scope="col">설정</th><th scope="col">전체 34개</th><th scope="col">Public 10개</th><th scope="col">Private 24개</th></tr></thead><tbody>
+      <tr><th scope="row">이전 융합</th><td>19.80%</td><td>20.08%</td><td>19.68%</td></tr>
+      <tr><th scope="row">테두리 측정</th><td>17.42%</td><td>16.65%</td><td>17.74%</td></tr>
+      <tr><th scope="row">최종 저장본</th><td><strong>17.28%</strong></td><td><strong>16.60%</strong></td><td><strong>17.56%</strong></td></tr>
+    </tbody></table>
+    <p>벤치마크 논문 Table 2의 24개 대상 MAPE는 MDMS 21%, SGPS 31%, PSHS 46%, GPT-5.2 34%입니다. 비교에 가까운 우리 측 범위는 private 24개입니다. <a href="https://arxiv.org/html/2602.13041v1#S4">원 논문</a></p>
+  </section>
+  <section id="limits">
+    <h2>무엇을 주장할 수 없는가</h2>
+    <div class="warning"><p>이 결과는 독립적인 SOTA 성능이 아닙니다. 대회 종료 후 public·private 피드백을 볼 수 있었고, 크롭 배율 5.0은 GT 피드백으로 선택했습니다. 이후 GT 접근 차단 실험이나 대리지표 확인이 이 개발 과정의 노출을 없애지는 않습니다.</p></div>
+    <p>동일 조건의 Chamfer Distance, 공식 순위, 새 데이터에서의 일반화, 전체 파이프라인의 기기 간 결정성은 검증하지 않았습니다. 이전의 0.198은 중간 설정, 0.1685는 무시드 샘플링 결과이며 최종 기준값으로 사용하지 않습니다.</p>
+  </section>
+  <section id="code">
+    <h2>코드와 재현 범위</h2>
+    <p><code>src/</code>에는 기하·분할·생성·융합·진단 코드가 있고, <code>scripts/</code>에는 최종 설정 선택과 재채점 도구가 있습니다. <code>tests/</code>는 채점과 수치 로직을 확인합니다. 새 환경에서의 전체 GPU 추론 재현은 아직 검증하지 않았습니다.</p>
+    <p>원본 사진·GT·가중치·캐시·자격 증명은 포함하지 않습니다. 필요한 데이터는 <a href="https://www.kaggle.com/competitions/3d-reconstruction-from-monocular-multi-food-images/data">Kaggle</a>에서 해당 조건에 따라 내려받아야 합니다.</p>
+  </section>
+</main>
+<footer>Post-competition research archive · Documentation and illustrative architecture, not a competition-rank claim.</footer>
+</body>
+</html>

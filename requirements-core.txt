@@ -1,0 +1,6 @@
+# Numeric/geometry dependencies; does not install GPU model runtimes.
+numpy==2.2.6
+scipy==1.15.3
+Pillow==12.3.0
+trimesh==5.0.0
+scikit-learn==1.7.2
