@@ -4,7 +4,7 @@ Post-competition exploration of the CVPR 2025 MetaFood Challenge-1 dataset.
 Separate **metric scale** from **shape**, combine depth geometry, reconstructed
 meshes, and vision-language estimates, and predict food volume in mL.
 
-![Method overview](docs/assets/method-architecture.png)
+![Method overview](docs/assets/method-architecture-v4.png)
 
 The diagram's food/depth/mesh inserts are AI-generated illustrations, not
 experimental evidence. Container foods follow a separate override described below.
