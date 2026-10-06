@@ -82,6 +82,6 @@ the fusion path. Keep GT-based scoring separate from prediction generation.
 The saved final CSV and the mesh-alignment sampling fix have been checked.
 Other generation/diagnostic code still contains stochastic sampling; whole-
 pipeline bitwise determinism across machines is not established. The archived
-GT-access harness is advisory, not an OS-level sandbox. Most importantly, GT-
-informed configuration selection occurred during development, regardless of
-whether a later inference run opened GT files.
+GT-access harness is advisory, not an OS-level sandbox. The project owner
+clarified that the GT comparisons were post-hoc checks. The retained archive
+does not independently establish the configuration-selection chronology.

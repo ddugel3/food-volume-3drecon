@@ -37,5 +37,14 @@ Private-24 is the closest local subset for numerical context, not proof of an
 identical controlled protocol. No competition win, new SOTA, independent held-
 out validation, or superior geometric reconstruction is claimed.
 
-The project used post-competition feedback and GT-informed crop selection.
-Do not present these measurements as a leakage-free benchmark result.
+These measurements are post-competition local evaluations, not an independently
+validated held-out benchmark result.
+
+## Protocol Clarification
+
+On 2026-10-06, the project owner clarified that GT comparisons were later
+checks, not the basis for selecting crop expansion. Older notes describe that
+selection differently; the retained archive does not independently resolve the
+chronology. The public summary therefore no longer states as fact that crop
+expansion was selected using GT feedback. This clarification does not change
+the measured scores or establish independent held-out validation.

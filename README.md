@@ -27,8 +27,6 @@ Our numerically lower error is **not an independent SOTA claim**:
 
 - This project was developed after the competition, with public/private feedback
   available according to the archived notes.
-- Crop expansion 5.0 was selected with ground-truth feedback. A subsequent
-  GT-free consistency check does not reverse that development-time exposure.
 - The access-blocking harness checks inference file access only; it is not a
   security sandbox or evidence of leakage-free model/configuration selection.
 - No matching Chamfer Distance evaluation or competition rank is established.

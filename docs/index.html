@@ -68,7 +68,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:14px}
   </section>
   <section id="limits">
     <h2>무엇을 주장할 수 없는가</h2>
-    <div class="warning"><p>이 결과는 독립적인 SOTA 성능이 아닙니다. 대회 종료 후 public·private 피드백을 볼 수 있었고, 크롭 배율 5.0은 GT 피드백으로 선택했습니다. 이후 GT 접근 차단 실험이나 대리지표 확인이 이 개발 과정의 노출을 없애지는 않습니다.</p></div>
+    <div class="warning"><p>이 결과는 대회 종료 후 저장된 예측을 GT와 비교한 로컬 평가입니다. 공식 순위나 독립적인 SOTA 성능을 주장하지 않습니다. GT 접근 차단 실험은 추론 중 파일 접근을 검사한 것이며, 독립적인 미관측 평가를 대신하지 않습니다.</p></div>
     <p>동일 조건의 Chamfer Distance, 공식 순위, 새 데이터에서의 일반화, 전체 파이프라인의 기기 간 결정성은 검증하지 않았습니다. 이전의 0.198은 중간 설정, 0.1685는 무시드 샘플링 결과이며 최종 기준값으로 사용하지 않습니다.</p>
   </section>
   <section id="code">
